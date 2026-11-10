@@ -12,6 +12,8 @@
 
 **Windows 预览版** · Python + Tkinter 界面 · JavaScript 兼容核心
 
+[![Tests](https://github.com/Cheng02lema/clearspace/actions/workflows/tests.yml/badge.svg)](https://github.com/Cheng02lema/clearspace/actions/workflows/tests.yml)
+
 </div>
 
 > **请先阅读：**清理会永久删除数据，不会创建恢复备份。浏览器清理项可能删除 Chrome、Edge 和 Firefox 中**所有网站**的 Cookie、缓存与站点数据，并使网站退出登录。执行前请关闭相关程序，并核对每一个路径。
@@ -40,9 +42,11 @@
 - Node.js **24.4 或更新版本**，需能通过 `node` 命令访问。部分 Cookie 操作使用 Node 内置 SQLite。
 - 无需 Electron 或 `npm install`。需要修改系统策略、DNS 或定位的操作可能触发 Windows 管理员授权。
 
-从本仓库下载代码并解压，在项目目录双击 **`start.cmd`**。也可以打开终端运行：
+下载仓库代码并解压，在项目目录双击 **`start.cmd`**。也可以克隆后通过终端运行：
 
 ```powershell
+git clone https://github.com/Cheng02lema/clearspace.git
+cd clearspace
 python run.py
 ```
 
