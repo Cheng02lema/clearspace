@@ -1,6 +1,7 @@
 """Native desktop UI, confirmation flow, and background task orchestration."""
 import queue
 import math
+import sys
 import threading
 import tkinter as tk
 from tkinter import messagebox, ttk
@@ -22,7 +23,15 @@ MINT = '#e4f1ea'
 NAV = '#17332e'
 NAV2 = '#244a41'
 AMBER = '#9a632e'
-FONT = 'Microsoft YaHei UI'
+FONT = 'PingFang SC' if sys.platform == 'darwin' else 'Microsoft YaHei UI'
+
+
+def wheel_units(delta, platform=None):
+    if not delta:
+        return 0
+    if (platform or sys.platform) == 'darwin':
+        return -1 if delta > 0 else 1
+    return -int(delta / 120) or (-1 if delta > 0 else 1)
 
 
 class AnimatedMark(tk.Canvas):
@@ -95,7 +104,7 @@ class ScrollFrame(tk.Frame):
             widget = self.winfo_containing(event.x_root, event.y_root)
             while widget:
                 if widget == self:
-                    self.canvas.yview_scroll(-int(event.delta / 120), 'units')
+                    self.canvas.yview_scroll(wheel_units(event.delta), 'units')
                     break
                 widget = widget.master
 
@@ -210,7 +219,8 @@ class ClearspaceApp(tk.Tk):
                        bg=NAV, fg='#c2ddcf', activebackground=NAV, activeforeground=WHITE,
                        selectcolor=NAV2, font=(FONT, 9), anchor='w').pack(anchor='w', pady=(0, 10))
         label(foot, '●   本地隐私工作台', 10, '#c2ddcf', True, bg=NAV).pack(anchor='w')
-        label(foot, '非 Anthropic 官方 · 预览版', 8, '#8daca0', bg=NAV).pack(anchor='w', pady=(6, 0))
+        edition = 'macOS 预览版' if sys.platform == 'darwin' else 'Windows 预览版'
+        label(foot, f'{edition} · 非 Anthropic 官方', 8, '#8daca0', bg=NAV).pack(anchor='w', pady=(6, 0))
         self.main = tk.Frame(self, bg=BG)
         self.main.pack(side='left', fill='both', expand=True)
         top = tk.Frame(self.main, bg=BG, padx=32, pady=14)
@@ -396,7 +406,10 @@ class ClearspaceApp(tk.Tk):
         self._stats([('可用项目', str(len(available)) if self.targets else '—', '等待选择' if available else '扫描后显示'),
                      ('已选项目', str(len(chosen)), '逐项确认'),
                      ('预计大小', size_text(sum(t.get('bytes', 0) for t in chosen)), '部分目录可能为估算')])
-        self._strip(self.page, '先核对范围，再执行清理', '清理不可恢复；浏览器清理项可能删除全部网站的 Cookie、缓存和站点数据。本地清理不能清除服务端记录，也不能保证消除所有指纹。')
+        detail = ('清理不可恢复；浏览器清理项可能删除全部网站的 Cookie、缓存和站点数据。本地清理不能清除服务端记录，也不能保证消除所有指纹。')
+        if sys.platform == 'darwin':
+            detail += ' macOS 扫描当前用户主目录及显式配置的 Claude 目录；钥匙串凭据和 Safari 不在清理范围内。'
+        self._strip(self.page, '先核对范围，再执行清理', detail)
         self._result()
         self._section('扫描结果', '  ·  点击卡片左侧勾选项目', ('清理所选', self._prepare_clean))
         scroll = ScrollFrame(self.page)
@@ -616,6 +629,11 @@ class ClearspaceApp(tk.Tk):
         self._work('正在检查浏览器…', 'prepare-close', lambda d: self._confirm(d, 'close'))
 
     def _render_recovery(self):
+        if sys.platform == 'darwin':
+            self._header('NETWORK RECOVERY', '网络恢复', '此预览版不会在 macOS 上安装 Windows 版 DNS 防泄漏服务。')
+            self._strip(self.page, '当前平台不支持自动网络恢复', '此页面用于撤销 Windows 版创建的 DNS 服务与失效本机代理设置。macOS 系统和浏览器设置请按各项目的说明手动检查。')
+            self._empty(self.page, 'macOS 无自动网络恢复项', '此版本不会在这里修改 macOS 网络设置。')
+            return
         self._header('NETWORK RECOVERY', '恢复网络连接', '检测并恢复澄界造成的 DNS 改动，或失效的本机代理开关。', ('↻   重新检测', self._inspect))
         self._strip(self.page, '只处理可以识别的问题', '保留代理软件、节点和订阅；执行前会再次核对网络状态。')
         self._result()

@@ -21,7 +21,7 @@ function createContext(overrides = {}) {
     ? absoluteOrFallback(env.APPDATA, pathApi.join(homeDir, 'AppData', 'Roaming'))
     : localAppData;
 
-  const hasCustomClaudeDir = platform === 'win32' && typeof env.CLAUDE_CONFIG_DIR === 'string' && env.CLAUDE_CONFIG_DIR.length > 0;
+  const hasCustomClaudeDir = typeof env.CLAUDE_CONFIG_DIR === 'string' && env.CLAUDE_CONFIG_DIR.length > 0;
   const invalidClaudeConfigDir = hasCustomClaudeDir && !pathApi.isAbsolute(env.CLAUDE_CONFIG_DIR);
   const configuredClaudeDir = hasCustomClaudeDir && !invalidClaudeConfigDir
     ? pathApi.resolve(env.CLAUDE_CONFIG_DIR)

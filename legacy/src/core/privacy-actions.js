@@ -160,7 +160,12 @@ function publicPrivacyActions(rawContext = {}) {
   ]);
   return PRIVACY_ACTIONS
     .filter((action) => platform !== 'darwin' || !hiddenOnMac.has(action.id))
-    .map((action) => ({ ...action }));
+    .map((action) => ({
+      ...action,
+      ...(platform === 'darwin' && action.id === 'claude-environment' ? {
+        description: '移除 launchctl 中的 Claude 专用变量，并删除用户 shell 配置文件中匹配的整行；可能需要重新配置终端或 Claude，且不创建备份。',
+      } : {}),
+    }));
 }
 
 function runCommand(file, args, options = {}) {
@@ -245,7 +250,7 @@ async function chromiumProfileDirectories(root, p = path) {
   return directories;
 }
 
-function parseFirefoxProfilesIni(text, profileRoot, p) {
+function parseFirefoxProfilesIni(text, firefoxDirectory, p) {
   const sections = [];
   let current = null;
   for (const rawLine of text.split(/\r?\n/)) {
@@ -262,7 +267,7 @@ function parseFirefoxProfilesIni(text, profileRoot, p) {
   }
   return sections
     .filter((section) => section.Path)
-    .map((section) => section.IsRelative === '0' ? p.resolve(section.Path) : p.resolve(profileRoot, section.Path));
+    .map((section) => section.IsRelative === '0' ? p.resolve(section.Path) : p.resolve(firefoxDirectory, section.Path));
 }
 
 async function getBrowserProfiles(rawContext = {}) {
@@ -308,7 +313,7 @@ async function getBrowserProfiles(rawContext = {}) {
   try {
     for (const directory of parseFirefoxProfilesIni(
       await fs.readFile(p.join(p.dirname(firefoxRoot), 'profiles.ini'), 'utf8'),
-      firefoxRoot,
+      p.dirname(firefoxRoot),
       p,
     )) firefoxCandidates.add(p.normalize(directory));
   } catch (error) {

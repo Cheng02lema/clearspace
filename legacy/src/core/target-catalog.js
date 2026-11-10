@@ -32,9 +32,14 @@ async function getEffectiveTargetCatalog(rawContext = {}, options = {}) {
   const fixedTargets = options.discovery?.globalSearch ? [] : getTargets(context);
   const discovery = await discoverClaudeData(context, options.discovery || {});
   const browserTarget = await getBrowserCleanupTarget(context);
+  const targets = mergeTargets(fixedTargets, discovery.targets, context).map((target) => (
+    context.claudeConfigError && target.group === 'code'
+      ? { ...target, blockedReason: context.claudeConfigError, defaultSelected: false }
+      : target
+   ));
   return {
     targets: [
-      ...mergeTargets(fixedTargets, discovery.targets, context),
+      ...targets,
       ...(browserTarget ? [browserTarget] : []),
     ],
     discovery: discovery.meta,

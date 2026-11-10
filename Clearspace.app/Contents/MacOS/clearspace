@@ -1,0 +1,10 @@
+#!/bin/bash
+# The wrapper remains next to the source directory and uses installed runtimes.
+set -eu
+ROOT="$(CDPATH= cd -- "$(dirname -- "$0")/../../.." && pwd -P)"
+export CLEARSPACE_FINDER_LAUNCH=1
+if [ ! -f "$ROOT/start-macos.command" ]; then
+  /usr/bin/osascript -e 'display dialog "请将澄界应用保留在完整项目文件夹内，再重新打开。" with title "澄界无法启动" buttons {"好"} default button "好" with icon stop' || true
+  exit 1
+fi
+exec /bin/bash "$ROOT/start-macos.command" "$@"

@@ -70,7 +70,7 @@ class OneClickWorkflowTests(unittest.TestCase):
     def test_run_and_restore_only_backed_settings(self):
         core = FakeCore()
         with tempfile.TemporaryDirectory() as temp:
-            journal = workflow.Journal(Path(temp) / 'journal.json')
+            journal = workflow.Journal(Path(temp).resolve() / 'journal.json')
             with patch('clearspace.workflow.state_presence', return_value=False):
                 plan = workflow.prepare(core)
             result = workflow.execute(core, plan, journal=journal, presence=lambda action: False, signature=lambda action: 'signature')
@@ -88,7 +88,7 @@ class OneClickWorkflowTests(unittest.TestCase):
     def test_changed_cleanup_paths_stop_before_deletion_or_settings(self):
         core = FakeCore(changed_path=True)
         with tempfile.TemporaryDirectory() as temp:
-            journal = workflow.Journal(Path(temp) / 'journal.json')
+            journal = workflow.Journal(Path(temp).resolve() / 'journal.json')
             with patch('clearspace.workflow.state_presence', return_value=False):
                 plan = workflow.prepare(core)
             result = workflow.execute(core, plan, journal=journal, presence=lambda action: False)
@@ -99,7 +99,7 @@ class OneClickWorkflowTests(unittest.TestCase):
     def test_prior_recovery_record_is_not_overwritten(self):
         core = FakeCore()
         with tempfile.TemporaryDirectory() as temp:
-            journal = workflow.Journal(Path(temp) / 'journal.json')
+            journal = workflow.Journal(Path(temp).resolve() / 'journal.json')
             journal.save({'schema': 1, 'actions': [{'id': 'protect-dns', 'restoreEligible': True, 'restored': False}]})
             with patch('clearspace.workflow.state_presence', return_value=False):
                 plan = workflow.prepare(core)
@@ -110,7 +110,7 @@ class OneClickWorkflowTests(unittest.TestCase):
     def test_existing_backup_is_not_claimed_by_new_operation(self):
         core = FakeCore()
         with tempfile.TemporaryDirectory() as temp:
-            journal = workflow.Journal(Path(temp) / 'journal.json')
+            journal = workflow.Journal(Path(temp).resolve() / 'journal.json')
             with patch('clearspace.workflow.state_presence', return_value=True):
                 plan = workflow.prepare(core)
             workflow.execute(core, plan, journal=journal, presence=lambda action: True, signature=lambda action: 'state')
@@ -120,7 +120,7 @@ class OneClickWorkflowTests(unittest.TestCase):
     def test_changed_recovery_record_is_not_applied(self):
         core = FakeCore()
         with tempfile.TemporaryDirectory() as temp:
-            journal = workflow.Journal(Path(temp) / 'journal.json')
+            journal = workflow.Journal(Path(temp).resolve() / 'journal.json')
             journal.save({'schema': 1, 'cleanup': [], 'actions': [{'id': 'protect-dns', 'title': 'DNS',
                            'restoreEligible': True, 'restored': False, 'stateSignature': 'original'}]})
             plan = workflow.prepare_restore(core, journal=journal, signature=lambda action: 'changed')
@@ -131,7 +131,7 @@ class OneClickWorkflowTests(unittest.TestCase):
     def test_rechecks_recovery_state_after_confirmation(self):
         core = FakeCore()
         with tempfile.TemporaryDirectory() as temp:
-            journal = workflow.Journal(Path(temp) / 'journal.json')
+            journal = workflow.Journal(Path(temp).resolve() / 'journal.json')
             journal.save({'schema': 1, 'cleanup': [], 'actions': [{'id': 'protect-dns', 'title': 'DNS',
                            'restoreEligible': True, 'restored': False, 'stateSignature': 'original'}]})
             plan = workflow.prepare_restore(core, journal=journal, signature=lambda action: 'original')

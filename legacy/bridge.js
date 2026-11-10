@@ -17,11 +17,11 @@ const { openAdGuardSetupPages } = require('./src/core/adguard-browser-setup');
 const { buildAdGuardImportUrl } = require('./src/core/adguard-setup');
 
 const base = path.resolve(__dirname, '..');
-const home = process.env.USERPROFILE || process.env.HOME;
+const home = (process.platform === 'win32' ? (process.env.USERPROFILE || process.env.HOME) : process.env.HOME) || require('node:os').homedir();
 const context = createContext({
   homeDir: home,
   documentsDir: process.env.CLEARSPACE_DOCUMENTS || path.join(home, 'Documents'),
-  userDataDir: process.env.CLEARSPACE_USER_DATA || path.join(process.env.APPDATA || path.join(home, 'Library', 'Application Support'), '澄界'),
+  userDataDir: process.env.CLEARSPACE_USER_DATA || path.join(process.platform === 'win32' ? (process.env.APPDATA || path.join(home, 'AppData', 'Roaming')) : path.join(home, 'Library', 'Application Support'), '澄界'),
   appVersion: '2.3.7-python-preview',
 });
 context.workspaceRoot = base;
@@ -49,7 +49,12 @@ function idsArg(ids, max = 500) {
   return [...ids].sort();
 }
 async function discovery() {
-  return { globalSearch: true, discoveryRoots: await enumerateGlobalDiscoveryRoots(context, { maxDepth: 10 }), maxDepth: 10, maxEntries: 250000, maxCandidateEntries: 4096, timeoutMs: 60000 };
+  // On macOS do not scan other users or mounted volumes by default. Respect an
+  // explicitly configured Claude directory, including one outside the home.
+  const roots = context.platform === 'darwin'
+    ? [context.homeDir, context.claudeConfigDir]
+    : undefined;
+  return { globalSearch: true, discoveryRoots: await enumerateGlobalDiscoveryRoots(context, { maxDepth: 10, volumeRoots: roots }), maxDepth: 10, maxEntries: 250000, maxCandidateEntries: 4096, timeoutMs: 60000 };
 }
 async function getCatalog() {
   const options = await discovery();

@@ -26,4 +26,31 @@ jobs:
       - name: Python tests
         run: python -W error::ResourceWarning -m unittest discover -s tests -v
       - name: JavaScript safety tests
-        run: node --test tests/legacy-cleaner.test.js tests/browser-process.test.js
+        run: node --test tests/legacy-cleaner.test.js tests/browser-process.test.js tests/macos-platform.test.js
+
+  macos:
+    strategy:
+      fail-fast: false
+      matrix:
+        runner: [macos-latest, macos-15-intel]
+    runs-on: ${{ matrix.runner }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Check launchers and Tkinter
+        run: |
+          bash -n start-macos.command
+          bash -n Clearspace.app/Contents/MacOS/clearspace
+          test -x start-macos.command
+          test -x Clearspace.app/Contents/MacOS/clearspace
+          plutil -lint Clearspace.app/Contents/Info.plist
+          python3 -c 'import tkinter; print(tkinter.TkVersion)'
+      - name: Python tests
+        run: python3 -W error::ResourceWarning -m unittest discover -s tests -v
+      - name: JavaScript safety tests
+        run: node --test tests/legacy-cleaner.test.js tests/browser-process.test.js tests/macos-platform.test.js

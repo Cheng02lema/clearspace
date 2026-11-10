@@ -10,7 +10,7 @@
 
 [English](docs/README.en.md) · [使用边界与恢复](docs/SAFETY.md) · [第三方组件](THIRD_PARTY_NOTICES.md)
 
-**Windows 预览版** · Python + Tkinter 界面 · JavaScript 兼容核心
+**Windows / macOS 预览版** · Python + Tkinter 界面 · JavaScript 兼容核心
 
 [![Tests](https://github.com/Cheng02lema/clearspace/actions/workflows/tests.yml/badge.svg)](https://github.com/Cheng02lema/clearspace/actions/workflows/tests.yml)
 
@@ -22,9 +22,9 @@
 
 ## 界面预览
 
-![澄界主界面，首次启动且尚未扫描](docs/screenshot.png)
+![澄界 Windows 主界面，首次启动且尚未扫描](docs/screenshot.png)
 
-首次启动时不会自动扫描。主界面集中显示扫描结果、已选项目与一键操作入口；浏览器、系统和网络恢复各有独立页面。
+上图为 Windows 界面。首次启动时不会自动扫描。主界面集中显示扫描结果、已选项目与一键操作入口；浏览器、系统和网络恢复各有独立页面。
 
 ## 澄界能做什么
 
@@ -43,10 +43,12 @@
 
 **运行环境**
 
-- Windows 10 / 11；当前主要在 Windows 上开发和测试。
+- Windows 10 / 11，或 macOS。macOS 版本是预览版，支持 Apple Silicon 与 Intel；尚未在真实 Mac 桌面上完成端到端验证。
 - Python **3.10 或更新版本**，安装时需包含 Tkinter。
 - Node.js **24.4 或更新版本**，需能通过 `node` 命令访问。部分 Cookie 操作使用 Node 内置 SQLite。
-- 无需 Electron 或 `npm install`。需要修改系统策略、DNS 或定位的操作可能触发 Windows 管理员授权。
+- 无需 Electron 或 `npm install`。修改部分系统设置可能触发操作系统授权。
+
+### Windows
 
 下载仓库代码并解压，在项目目录双击 **`start.cmd`**。也可以克隆后通过终端运行：
 
@@ -55,6 +57,19 @@ git clone https://github.com/Cheng02lema/clearspace.git
 cd clearspace
 python run.py
 ```
+
+### macOS
+
+先安装包含 Tkinter 的 [Python](https://www.python.org/downloads/macos/) 和 [Node.js](https://nodejs.org/en/download)。下载并解压完整项目后，在项目目录中运行：
+
+```bash
+chmod +x start-macos.command Clearspace.app/Contents/MacOS/clearspace
+./start-macos.command
+```
+
+也可以双击项目目录中的 **`Clearspace.app`**。它是依赖本机 Python 和 Node.js 的启动器，**必须与完整项目放在一起**，不能单独移到“应用程序”文件夹使用。当前启动器没有 Apple 开发者签名或公证，macOS 可能限制打开；也可直接在终端运行 `python3 run.py`。
+
+macOS 可能要求对相关文件或其他应用授权；是否授权由用户决定。扫描默认限于当前用户主目录及通过 `CLAUDE_CONFIG_DIR` 显式指定的目录；跨卷目标可能无法安全清理。
 
 首次启动不会自动扫描。点击“扫描”查看结果，或点击“一键启动”检查完整执行清单。扫描的文件大小可能是限时估算值；结果受权限、目录结构和扫描预算影响，不能视为完整清单。
 
@@ -74,13 +89,14 @@ python run.py
 - 代理地区和时区同步会请求 `ipwho.is` 或 `ipapi.co`；DNS 保护会进行 Cloudflare 连通性检查，并使用 DNSCrypt 配置中的解析服务。AdGuard 设置会打开官方扩展商店和配置页。因此**本工具并非完全离线**。
 - 浏览器专用代理或 PAC 的行为可能与本应用读取到的系统代理不同；位置查询失败时应检查网络设置。
 - 一键恢复依赖本次操作产生且未变化的恢复记录；没有记录、记录已改变，或修改前已有旧记录时会保守跳过。其他程序之后对设置做出的变更也可能影响恢复结果。
+- **macOS 限制：**不清理 Safari 或钥匙串凭据；Windows 专用 DNS 防泄漏、AdGuard 自动安装、浏览器语言同步和网络恢复不提供。macOS 的一键恢复目前不能自动还原被清理数据或系统、浏览器设置。清理 Claude 环境变量可能删除用户 shell 配置中匹配的整行。
 - 清理不会更改平台服务器端数据。若要管理 Claude 账号或导出数据，请使用 Anthropic 官方渠道。
 
 更具体的说明见 [使用边界与恢复](docs/SAFETY.md)。
 
 ## 当前状态
 
-这是可运行的迁移预览：**界面和调度使用 Python / Tkinter，但核心清理、浏览器策略和 DNS 逻辑仍依赖原有 JavaScript 兼容层**，并非纯 Python 实现。尚未提供经过完整端到端验证的安装包。建议先在测试账户或虚拟机中评估，再处理重要数据或系统网络设置。
+这是可运行的迁移预览：**界面和调度使用 Python / Tkinter，但核心清理、浏览器策略和 DNS 逻辑仍依赖原有 JavaScript 兼容层**，并非纯 Python 实现。尚未提供经过完整端到端验证或签名的安装包。建议先在测试账户或虚拟机中评估，再处理重要数据或系统网络设置。
 
 ```text
 clearspace/             Python 界面、动作分类、一键流程
@@ -94,7 +110,7 @@ tests/                  模拟流程、路径保护和本地界面测试
 
 ```powershell
 python -m unittest discover -s tests -v
-node --test tests/legacy-cleaner.test.js tests/browser-process.test.js
+node --test tests/legacy-cleaner.test.js tests/browser-process.test.js tests/macos-platform.test.js
 ```
 
 测试使用模拟流程和新建临时文件，不会清理用户数据或修改系统网络设置。DNS、管理员授权和浏览器策略尚未在所有 Windows 配置上做真实端到端验证。

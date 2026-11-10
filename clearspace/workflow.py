@@ -2,6 +2,7 @@
 import json
 import hashlib
 import os
+import sys
 from pathlib import Path
 import tempfile
 from datetime import datetime, timezone
@@ -95,6 +96,8 @@ def state_signature(action_id):
 
 def journal_path():
     base = os.environ.get('LOCALAPPDATA') if os.name == 'nt' else None
+    if sys.platform == 'darwin':
+        base = str(Path.home() / 'Library' / 'Application Support')
     if not base or not Path(base).is_absolute():
         base = str(Path.home() / '.local' / 'share')
     return Path(base) / 'ClearspacePython' / 'one-click.json'

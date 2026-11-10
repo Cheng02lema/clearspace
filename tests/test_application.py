@@ -2,6 +2,8 @@ import tempfile
 import time
 import unittest
 import subprocess
+import os
+import sys
 from pathlib import Path
 from unittest import mock
 
@@ -20,11 +22,16 @@ class CompatibilityTests(unittest.TestCase):
         from clearspace.action_groups import ACTION_GROUPS
         self.assertTrue(self.client.call('ping')['ready'])
         ids = {x['id'] for x in self.client.call('actions')}
-        self.assertEqual(ids, set(ACTION_GROUPS))
-        self.assertIn('protect-dns', ids)
-        self.assertIn('restore-dns', ids)
-        with self.assertRaises(CoreError):
-            self.client.call('prepare-privacy', ids=['protect-dns', 'restore-dns'])
+        if sys.platform == 'darwin':
+            self.assertNotIn('protect-dns', ids)
+            self.assertNotIn('restore-dns', ids)
+            self.assertTrue(ids.issubset(ACTION_GROUPS))
+        else:
+            self.assertEqual(ids, set(ACTION_GROUPS))
+            self.assertIn('protect-dns', ids)
+            self.assertIn('restore-dns', ids)
+            with self.assertRaises(CoreError):
+                self.client.call('prepare-privacy', ids=['protect-dns', 'restore-dns'])
         with self.assertRaises(CoreError):
             self.client.call('prepare-privacy', ids=['unknown'])
 
@@ -80,6 +87,7 @@ class FakeCore:
         pass
 
 
+@unittest.skipIf(sys.platform == 'darwin' and os.environ.get('CI') == 'true', 'macOS CI has no interactive desktop')
 class WindowTests(unittest.TestCase):
     def test_motion_can_be_disabled(self):
         from clearspace.app import ClearspaceApp, AnimatedMark
@@ -139,6 +147,16 @@ class WindowTests(unittest.TestCase):
                 self.assertGreaterEqual(app.winfo_width(), 1020)
             finally:
                 app.destroy()
+
+
+class MouseWheelTests(unittest.TestCase):
+    def test_macos_small_deltas_and_windows_wheel(self):
+        from clearspace.app import wheel_units
+        self.assertEqual(wheel_units(1, 'darwin'), -1)
+        self.assertEqual(wheel_units(-1, 'darwin'), 1)
+        self.assertEqual(wheel_units(120, 'win32'), -1)
+        self.assertEqual(wheel_units(-240, 'win32'), 2)
+        self.assertEqual(wheel_units(0, 'darwin'), 0)
 
 
 if __name__ == '__main__':
