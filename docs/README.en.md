@@ -26,9 +26,11 @@ Clearspace is an independent, unofficial project and is not affiliated with Anth
 
 Requirements: Windows 10/11, Python 3.10+ with Tkinter, and Node.js 24.4+. No Electron or npm install is required. Some operations require administrator approval.
 
-Download or clone the repository, then double-click `start.cmd` or run:
+Download and extract the repository, then double-click `start.cmd`. Alternatively, clone and run it from a terminal:
 
 ```powershell
+git clone https://github.com/Cheng02lema/clearspace.git
+cd clearspace
 python run.py
 ```
 
