@@ -621,7 +621,7 @@ async function detectDesktopDirectory(candidate, scope, context, state) {
     group: 'desktop',
     category: 'claude-desktop-device-id',
     title: '发现的 Claude 桌面端设备标识',
-    description: '仅清理结构校验通过目录中的 ant-did 文件，可创建备份。',
+    description: '仅清理结构校验通过目录中的 ant-did 文件；本应用不创建备份。',
     risk: 'low',
     backup: true,
     path: devicePath,
@@ -688,7 +688,9 @@ async function detectCodeDirectory(candidate, root, context, state) {
       group: 'code',
       category: 'claude-code-credentials',
       title: '发现的 Claude Code 登录凭据',
-      description: '清理后 Claude Code 需要重新登录；敏感凭据不创建持久备份。',
+      description: context.platform === 'darwin'
+        ? '清理可能存在的兼容凭据文件；macOS 通常将凭据保存在钥匙串。'
+        : '清理后 Claude Code 需要重新登录；敏感凭据不创建持久备份。',
       risk: 'medium',
       backup: false,
       path: credentialsPath,
@@ -703,7 +705,7 @@ async function detectCodeDirectory(candidate, root, context, state) {
       group: 'code',
       category: 'claude-code-settings',
       title: '发现的 Claude Code 用户设置',
-      description: '结构校验通过的 settings.json，可创建备份后清理。',
+      description: '结构校验通过的 settings.json；本应用不创建备份。',
       risk: 'high',
       backup: true,
       path: settingsPath,

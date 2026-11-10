@@ -144,7 +144,7 @@ def prepare(core):
     if len(clean) > 500 or len(settings) > 16:
         raise RuntimeError('扫描结果过多，请分批手动处理。')
     closed = core.call('prepare-close')
-    unavailable = [item for item in scan if item.get('exists') and item.get('blockedReason')]
+    unavailable = [item for item in scan if item.get('blockedReason')]
     baseline = {key: state_presence(key) for key in RESTORE_MAP}
     if baseline['protect-dns'] is False:
         try:

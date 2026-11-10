@@ -67,6 +67,20 @@ class FakeCore:
 
 
 class OneClickWorkflowTests(unittest.TestCase):
+    def test_prepare_lists_blocked_items_even_when_safety_scan_hides_their_existence(self):
+        core = FakeCore()
+        original_call = core.call
+        blocked = {'id': 'blocked', 'title': 'Custom directory', 'exists': False,
+                   'blockedReason': 'Cannot remove the whole custom directory', 'resources': []}
+        def call(command, **payload):
+            result = original_call(command, **payload)
+            return result + [blocked] if command == 'scan' else result
+        core.call = call
+        with patch('clearspace.workflow.state_presence', return_value=False):
+            plan = workflow.prepare(core)
+        self.assertEqual([item['id'] for item in plan['unavailable']], ['blocked'])
+        self.assertNotIn('blocked', [item['id'] for item in plan['cleanup']])
+
     def test_run_and_restore_only_backed_settings(self):
         core = FakeCore()
         with tempfile.TemporaryDirectory() as temp:
