@@ -14,6 +14,12 @@
 
 Clearspace is an independent, unofficial project and is not affiliated with Anthropic. Local cleanup cannot erase server-side records, guarantee fingerprint removal, or change account eligibility.
 
+## Interface
+
+![Clearspace main screen before scanning](screenshot.png)
+
+The main screen opens without scanning automatically. Browser, system, and network recovery controls have separate pages.
+
 ## Features
 
 - Review discovered Claude Desktop and Claude Code data and select specific cleanup targets.
