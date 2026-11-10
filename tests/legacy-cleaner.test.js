@@ -8,14 +8,15 @@ const { createContext } = require('../legacy/src/core/targets');
 const { cleanTargets } = require('../legacy/src/core/cleaner');
 
 async function removeFixture(root, prefix) {
-  assert.equal(path.resolve(path.dirname(root)).toLowerCase(), path.resolve(os.tmpdir()).toLowerCase());
+  const realTemp = await fs.realpath(os.tmpdir());
+  assert.equal(path.resolve(path.dirname(root)).toLowerCase(), path.resolve(realTemp).toLowerCase());
   assert.ok(path.basename(root).startsWith(prefix));
   assert.equal((await fs.lstat(root)).isSymbolicLink(), false);
   await fs.rm(root, { recursive: true, force: true });
 }
 
 test('cleanup is confined to selected files in a temporary fixture', async () => {
-  const root = await fs.mkdtemp(path.join(os.tmpdir(), 'clearspace-test-'));
+  const root = await fs.mkdtemp(path.join(await fs.realpath(os.tmpdir()), 'clearspace-test-'));
   try {
     const home = path.join(root, 'home');
     const targetDir = path.join(home, 'data');
@@ -38,7 +39,7 @@ test('cleanup is confined to selected files in a temporary fixture', async () =>
 });
 
 test('cleanup refuses a junction and preserves its contents', async () => {
-  const root = await fs.mkdtemp(path.join(os.tmpdir(), 'clearspace-test-link-'));
+  const root = await fs.mkdtemp(path.join(await fs.realpath(os.tmpdir()), 'clearspace-test-link-'));
   try {
     const home = path.join(root, 'home');
     const outside = path.join(root, 'outside');
