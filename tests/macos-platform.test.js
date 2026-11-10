@@ -65,3 +65,30 @@ test('invalid macOS configuration blocks dynamically discovered Code data', { sk
     await fs.rm(root, { recursive: true, force: true });
   }
 });
+
+test('macOS discovers individual files in an explicitly configured directory without allowing a full reset', { skip: process.platform !== 'darwin' }, async () => {
+  const parent = await fs.realpath(os.homedir());
+  const root = await fs.mkdtemp(path.join(parent, '.clearspace-test-'));
+  try {
+    const home = path.join(root, 'home');
+    const config = path.join(root, 'custom-config');
+    await fs.mkdir(home);
+    await fs.mkdir(config);
+    await fs.writeFile(path.join(config, 'settings.json'), '{}');
+    await fs.writeFile(path.join(config, '.credentials.json'), '{}');
+    const context = createContext({ platform: 'darwin', homeDir: home, env: { CLAUDE_CONFIG_DIR: config } });
+    const { targets } = await getEffectiveTargetCatalog(context, {
+      discovery: { globalSearch: true, discoveryRoots: [home, config], maxDepth: 3, timeoutMs: 10000 },
+    });
+    const at = (filename) => targets.find(item => item.resources.some(resource => resource.path === path.join(config, filename)));
+    assert.ok(at('settings.json') && !at('settings.json').blockedReason);
+    assert.ok(at('.credentials.json') && !at('.credentials.json').blockedReason);
+    const full = targets.find(item => item.category === 'claude-code' && item.resources.some(resource => resource.path === config));
+    assert.ok(full && full.blockedReason && !full.defaultSelected);
+  } finally {
+    assert.equal(path.dirname(root), parent);
+    assert.ok(path.basename(root).startsWith('.clearspace-test-'));
+    assert.equal((await fs.lstat(root)).isSymbolicLink(), false);
+    await fs.rm(root, { recursive: true, force: true });
+  }
+});

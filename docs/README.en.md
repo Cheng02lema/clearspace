@@ -51,7 +51,7 @@ You can also open `Clearspace.app` in Finder. This is a source-tree launcher, no
 
 Scan first, inspect each path and effect, save your work, and confirm before applying changes. The application is a preview: its UI and orchestration are Python, while the cleanup, browser, and DNS core still uses a JavaScript compatibility layer. It is **not yet a pure Python application**.
 
-On macOS, discovery is limited to the current user's home and an explicitly configured `CLAUDE_CONFIG_DIR`. Safari and Keychain credentials are not cleaned. Windows-only DNS protection, AdGuard automation, browser language synchronization and network recovery are unavailable; one-click restore cannot currently undo macOS cleanup or system/browser settings. Cleaning Claude environment variables may remove matching entire lines from shell configuration files.
+On macOS, discovery is limited to the current user's home and an explicitly configured `CLAUDE_CONFIG_DIR`. Recognized files within a custom configuration directory can be selected individually, but the whole custom directory is blocked from cleanup. Safari and Keychain credentials are not cleaned. Windows-only DNS protection, AdGuard automation, browser language synchronization and network recovery are unavailable; one-click restore cannot currently undo macOS cleanup or system/browser settings. Cleaning Claude environment variables may remove matching entire lines from shell configuration files.
 
 ## Privacy and network use
 

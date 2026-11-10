@@ -32,11 +32,21 @@ async function getEffectiveTargetCatalog(rawContext = {}, options = {}) {
   const fixedTargets = options.discovery?.globalSearch ? [] : getTargets(context);
   const discovery = await discoverClaudeData(context, options.discovery || {});
   const browserTarget = await getBrowserCleanupTarget(context);
-  const targets = mergeTargets(fixedTargets, discovery.targets, context).map((target) => (
-    context.claudeConfigError && target.group === 'code'
-      ? { ...target, blockedReason: context.claudeConfigError, defaultSelected: false }
-      : target
-   ));
+  const defaultCodeDir = context.pathApi.join(context.homeDir, '.claude');
+  const customCodeDir = resourceKey(context.claudeConfigDir, context) !== resourceKey(defaultCodeDir, context);
+  const targets = mergeTargets(fixedTargets, discovery.targets, context).map((target) => {
+    if (context.claudeConfigError && target.group === 'code') {
+      return { ...target, blockedReason: context.claudeConfigError, defaultSelected: false };
+    }
+    // A custom configuration directory could contain unrelated data. Its
+    // recognized individual files may be offered, but never the entire root.
+    if (customCodeDir && target.category === 'claude-code' && target.resources.some((resource) => (
+      resource.type === 'path' && resourceKey(resource.path, context) === resourceKey(context.claudeConfigDir, context)
+    ))) {
+      return { ...target, blockedReason: '自定义 Claude 配置目录可能包含其他数据，禁止完整清理该目录。', defaultSelected: false };
+    }
+    return target;
+  });
   return {
     targets: [
       ...targets,

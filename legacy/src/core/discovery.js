@@ -820,6 +820,13 @@ async function scanDiscoveryRoot(root, context, state) {
   if (root.scope === 'home' || root.scope === 'all') {
     await scanHomeOrOverride(root, context, state, targets);
   }
+  // An explicitly configured Claude directory may have an arbitrary name or
+  // be outside the home directory. In that case it is itself a discovery root,
+  // rather than a child that scanAppDataTree can encounter.
+  if (checkBudget(state) && root.scope === 'all' && context.claudeConfigDir
+      && samePath(root.path, context.claudeConfigDir, context)) {
+    await addTargets(targets, await detectCodeDirectory(root.path, root, context, state));
+  }
   if (checkBudget(state)) {
     if (root.scope === 'code-config') {
       await addTargets(targets, await detectCodeDirectory(root.path, root, context, state));
