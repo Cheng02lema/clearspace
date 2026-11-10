@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="360" viewBox="0 0 1200 360" role="img" aria-labelledby="title desc">
+  <title id="title">Clearspace — Claude Local Cleanup</title>
+  <desc id="desc">An abstract orbit mark on a deep green background.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" x2="1" y1="0" y2="1"><stop stop-color="#112e29"/><stop offset="1" stop-color="#1b5145"/></linearGradient>
+    <linearGradient id="arc" x1="0" x2="1"><stop stop-color="#a1d6bc"/><stop offset="1" stop-color="#e0f1dc"/></linearGradient>
+  </defs>
+  <rect width="1200" height="360" rx="22" fill="url(#bg)"/>
+  <circle cx="1060" cy="190" r="210" fill="none" stroke="#80b9a2" stroke-opacity=".10"/>
+  <circle cx="1060" cy="190" r="150" fill="none" stroke="#80b9a2" stroke-opacity=".12"/>
+  <circle cx="1060" cy="190" r="90" fill="none" stroke="#80b9a2" stroke-opacity=".16"/>
+  <circle cx="155" cy="180" r="69" fill="none" stroke="#77ab96" stroke-opacity=".45" stroke-width="2"/>
+  <path d="M172 139a44 44 0 1 1-51 13" fill="none" stroke="url(#arc)" stroke-width="9" stroke-linecap="round"/>
+  <circle cx="202" cy="128" r="8" fill="#e9bf9c"/>
+  <text x="265" y="137" font-family="Segoe UI,Arial,sans-serif" font-size="19" font-weight="700" letter-spacing="5" fill="#b7d8c5">CLAUDE LOCAL CLEANUP</text>
+  <text x="261" y="213" font-family="Segoe UI,Arial,sans-serif" font-size="70" font-weight="700" letter-spacing="-2" fill="#f4faf5">Clearspace</text>
+  <text x="265" y="257" font-family="Segoe UI,Arial,sans-serif" font-size="21" fill="#b1d0bf">Review the scope. Choose what to clear. Stay in control.</text>
+  <rect x="266" y="285" width="112" height="2" rx="1" fill="#8dceb0"/>
+</svg>

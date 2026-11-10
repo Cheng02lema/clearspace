@@ -1,0 +1,41 @@
+server_names = ['cloudflare', 'quad9-doh-ip4-port443-nofilter-pri']
+listen_addresses = ['127.0.0.1:53']
+max_clients = 250
+
+ipv4_servers = true
+ipv6_servers = false
+dnscrypt_servers = false
+doh_servers = true
+odoh_servers = false
+require_dnssec = true
+require_nolog = true
+require_nofilter = true
+
+force_tcp = true
+http3 = false
+timeout = 5000
+keepalive = 30
+ignore_system_dns = true
+netprobe_timeout = 30
+netprobe_address = '1.1.1.1:443'
+
+cache = true
+cache_size = 4096
+cache_min_ttl = 60
+cache_max_ttl = 86400
+cache_neg_min_ttl = 10
+cache_neg_max_ttl = 600
+
+log_level = 3
+use_syslog = true
+
+[sources]
+  [sources.public-resolvers]
+  urls = [
+    'https://raw.githubusercontent.com/DNSCrypt/dnscrypt-resolvers/master/v3/public-resolvers.md',
+    'https://download.dnscrypt.info/resolvers-list/v3/public-resolvers.md'
+  ]
+  cache_file = 'public-resolvers.md'
+  minisign_key = 'RWQf6LRCGA9i53mlYecO4IzT51TGPpvWucNSCh1CBM0QTaLn73Y7GFO3'
+  refresh_delay = 72
+  prefix = ''
